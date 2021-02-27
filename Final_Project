@@ -1,0 +1,50 @@
+#Vignesh Rangarajan
+#Recipes Subreddit Instagram Project
+import praw
+import re
+import requests
+
+#Enter Info
+reddit = praw.Reddit(client_id = "", client_secret = "", user_agent = "",
+username ="", password = "")
+topics = ["christmas", "fruitcake", "meatloaf", "new year", "pie"]
+
+for t in topics:
+    #Introduction
+    print("Topic::***************** " + t)
+    myquery = "flair:'Recipe' AND (title:'" + t + "' OR selftext:'" + t + "')"
+    print (myquery)
+    #Specify recipes for the subreddit
+    search_results=reddit.subreddit("recipes").search(myquery, sort='relevance',limit=10)
+    prefered_recipe=None
+    images=None
+    for submission in search_results:
+        #if statements for receiving the desired post
+        if(prefered_recipe is None):
+            prefered_recipe = submission
+        images = re.findall("https://preview.redd.it/.*",submission.selftext)
+        if(len(images)>0):
+            prefered_recipe=submission
+            break
+    #print title, author, text of the post, and image
+    print("Title:  " + str(prefered_recipe.title))
+    print("Author:  " + str(prefered_recipe.author))
+    print(prefered_recipe.selftext)
+    #code to save image
+    #please note that the code below lists the specific directory where the files will be stored
+    img_file_name='/Users/vignesh/reddit_project/' +t + '.jpg'
+    if(len(images)>0):
+        url=images[0]
+        while url[-1]==')':
+            url = url[:-1]
+        print(url)
+        myfile = requests.get(url)
+        open(img_file_name, 'wb').write(myfile.content)
+    print("============================")
+
+
+
+
+
+
+
